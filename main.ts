@@ -202,6 +202,16 @@ function score(c: Candidate): number {
 
 function buildCandidates(): Scored[] {
   const out: Scored[] = [];
+  // Originality guard: no two candidates may be byte-identical, and no
+  // candidate may repeat the winning shape word-for-word. A list with a
+  // duplicate is a list that never got read back.
+  const seen = new Set<string>();
+  for (const c of CANDIDATES) {
+    if (seen.has(c.text)) {
+      throw new Error(`duplicate candidate: ${c.text}`);
+    }
+    seen.add(c.text);
+  }
   for (const c of CANDIDATES) {
     if (!isValid(c)) throw new Error(`invalid candidate: ${c.text}`);
     // Rubric sub-scores must be real scores against the brief: each
